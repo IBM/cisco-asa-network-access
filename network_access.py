@@ -38,6 +38,9 @@ class Defaults:
             self.credentials = Defaults.load_file(Defaults.CRED_FILE)
         if not self.config or not self.credentials:
             raise ValueError()
+        # Adding the following seems to improve a run by approximately 1 second
+        self.credentials['global_delay_factor'] = .25
+        self.credentials['blocking_timeout'] = 2
 
     @staticmethod
     def load_file(info_file):
@@ -129,7 +132,7 @@ def clean_config_set(configuration, project):
         logging.debug('Unable to find project %s for cleanup', project)
         return None
     for net in configuration.return_values('networks'):
-        (_, net_address) = net.items()
+        net_address = list(net.values())[0]
         try:
             net_address = ipaddress.ip_network(net_address)
             if int(net_address.prefixlen) == 32:
@@ -156,7 +159,7 @@ def main():
     """
     Entry point if called directly
     """
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
     parser = argparse.ArgumentParser()
     parser.add_argument("project", help="The project to modify")
     group = parser.add_mutually_exclusive_group()
@@ -176,11 +179,9 @@ def main():
     if not configuration_set:
         print("Unable to generate valid configuration. Run in debug mode to troubleshoot.")
         exit(-1)
-    #credentials['global_delay_factor'] = .25
     #credentials['blocking_timeout'] = 4
     #credentials['session_timeout'] = 40
-    print(configuration_set)
-    #configure_firewall(my_defaults.credentials, configuration_set)
+    configure_firewall(my_defaults.credentials, configuration_set)
 
 if __name__ == "__main__":
     main()
