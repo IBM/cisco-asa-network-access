@@ -38,9 +38,8 @@ class Defaults:
             self.credentials = Defaults.load_file(Defaults.CRED_FILE)
         if not self.config or not self.credentials:
             raise ValueError()
-        # Adding the following seems to improve a run by approximately 1 second
-        self.credentials['global_delay_factor'] = .25
-        self.credentials['blocking_timeout'] = 2
+        # Adding the following seems to slightly reduce the time to complete
+        self.credentials['global_delay_factor'] = .2
 
     @staticmethod
     def load_file(info_file):
@@ -145,19 +144,21 @@ def clean_config_set(configuration, project):
             logging.debug('Ignoring invalid network %s for cleanup', net_address)
     return fill_config_set(networks_to_clean, project_group, True)
 
-def configure_firewall(credentials, config_set):
+def configure_firewall(credentials, config_set=None, save=False):
     """
     Send commands to ASA via Netmiko
     """
     with ConnectHandler(**credentials) as asa:
         asa.enable()
         asa.config_mode()
-        asa.send_config_set(config_set, True)
-        asa.send_command_expect('wr mem')
+        if config_set:
+            asa.send_config_set(config_set, delay_factor=.2)
+        if save:
+            asa.send_command_expect('wr mem')
 
 def main():
     """
-    Entry point if called directly
+    Method to run if called directly
     """
     #logging.basicConfig(level=logging.DEBUG)
     parser = argparse.ArgumentParser()
@@ -167,6 +168,8 @@ def main():
                        help="The network to add to the specified project")
     group.add_argument("-c", "--clean", help="Remove all defined networks from specified project",
                        action="store_true", default=False)
+    parser.add_argument("-s", "--save", help="Save the configuration after making the change",
+                        action="store_true", default=False)
     args = parser.parse_args()
     my_defaults = Defaults()
     if args.clean:
@@ -179,9 +182,7 @@ def main():
     if not configuration_set:
         print("Unable to generate valid configuration. Run in debug mode to troubleshoot.")
         exit(-1)
-    #credentials['blocking_timeout'] = 4
-    #credentials['session_timeout'] = 40
-    configure_firewall(my_defaults.credentials, configuration_set)
+    configure_firewall(my_defaults.credentials, configuration_set, args.save)
 
 if __name__ == "__main__":
     main()
