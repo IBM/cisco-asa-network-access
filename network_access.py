@@ -11,6 +11,10 @@ Author: Scott Strattner (sstrattn@us.ibm.com)
 References:
 https://cyruslab.net/2017/10/10/update-cisco-asa-object-group-with-netmiko/
 
+© Copyright IBM Corporation 2018.
+
+LICENSE: The MIT License https://opensource.org/licenses/MIT
+
 """
 
 import logging

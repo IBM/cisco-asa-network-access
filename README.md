@@ -33,35 +33,25 @@ optional arguments:
 
 ## API Usage
 
-By default, *network_access_api.py* will listen on port 8088. Send GET request to "/" URL to get basic usage help. Examples:
+By default, *network_access_api.py* will listen on https port 8088. Send GET request to "/" URL to get basic usage help. A very basic SSL method is implemented; real certificates are recommended for production. I used *The Simplest Way To Do It* method found [in Miguel's excellent Flask tutorial](https://blog.miguelgrinberg.com/post/running-your-flask-application-over-https).
+
+The bare minimum security is in place - a pre-shared key is required. For production a more robust authentication mechanism is recommended.
+
+Examples:
 
 ```
-$ curl http://192.168.1.1:8088
+$ curl -k https://rest-server.example.com:8088
 {"usage": "URL to add a network: /add/<project_name> and include a network: <network_name> data in PUT request. URL to clean network: /clean/<project_name> and no data needed in the PUT request."}
-$ curl -X POST http://192.168.1.1:8088/clean/demo-3
-{
-    "message": "The method is not allowed for the requested URL."
-}
-$ curl -X PUT http://192.168.1.1:8088/clean/demo-3
-{
-    "project": "demo-3"
-}
-$ curl -X PUT http://192.168.1.1:8088/add/demo-3 -d "network=sos_net1"
-{
-    "demo-3": "sos_net1"
-}
-$ curl -X PUT http://192.168.1.1:8088/clean/demo-3
-{
-    "project": "demo-3"
-}
-$ curl -X PUT http://192.168.1.1:8088/clean/project-that-does-not-exist
-{
-    "Error": "Unable to generate configuration"
-}
-$ curl -X PUT http://192.168.1.1:8088/add/demo-3 -d "boo=yah"
-{
-    "message": "The browser (or proxy) sent a request that this server could not understand."
-}
+$ curl -k -X PUT https://rest-server.example.com:8088/add/demo-1 -d "network=net1" -d "key=S3cr3tK3y"
+{"demo-1": "net1"}
+$ curl -k -X PUT https://rest-server.example.com:8088/clean/demo-1 -d "key=S3cr3tK3y"
+{"project": "demo-1"}
+$ curl -k -X PUT https://rest-server.example.com:8088/clean/demo-1
+{"message": "The browser (or proxy) sent a request that this server could not understand."}
+$ curl -k -X PUT https://rest-server.example.com:8088/add/demo-1 -d "network=net1" -d "key=bogus"
+{"Error": "Unable to generate configuration"}
+$ curl -k -X PUT https://rest-server.example.com:8088/add/demo-1 -d "network=bogus_net" -d "key=S3cr3tK3y"
+{"Error": "Unable to generate configuration"}
 ```
 
 ## FAQ
@@ -70,7 +60,7 @@ $ curl -X PUT http://192.168.1.1:8088/add/demo-3 -d "boo=yah"
 Perhaps, but [not all ASAs support it](https://www.cisco.com/c/en/us/td/docs/security/asa/compatibility/asamatrx.html#id_65991).
 
 ### Why is save just an option, and not something done every time?
-While it is always important to save the configuration after making changes, to avoid losing the changes through an unexpected reboot and the like, most of the time spent in the script will be waiting for "wr mem" to finish. This time can vary based on the complexity of the configuration and the capability (model) of the ASA, but it can be significant (from a network automation point of view). For example, running against an old 5520:
+While it is always important to save the configuration after making changes (to avoid losing the changes through an unexpected reboot for example), most of the time spent in the script will be waiting for "wr mem" to finish. This time can vary based on the complexity of the configuration and the capability (model) of the ASA, but it can be significant (from a network automation point of view). For example, running against an old 5520:
 
 ```
 $ time ./network_access.py -n net1 project-1
