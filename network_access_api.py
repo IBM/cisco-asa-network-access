@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 
 network_access_api.py
@@ -12,6 +13,7 @@ LICENSE: The MIT License https://opensource.org/licenses/MIT
 
 """
 
+import logging
 from flask import Flask, request
 from flask_restful import Resource, Api
 import network_access
@@ -51,7 +53,8 @@ class AddNetwork(Resource):
         if not configuration_set or self.key != pre_shared_key:
             return {'Error': 'Unable to generate configuration'}
         network_access.configure_firewall(self.defaults.credentials, configuration_set)
-        return {project: network}
+        message = network + " to " + project
+        return {"Added": message}
 
 class CleanProject(Resource):
     """
@@ -67,16 +70,19 @@ class CleanProject(Resource):
         Clean network here
         """
         pre_shared_key = request.form['key']
-        configuration_set = network_access.clean_config_set(self.defaults, project)
+        network = request.form['network']
+        configuration_set = network_access.create_config_set(self.defaults, network, project, True)
         if not configuration_set or self.key != pre_shared_key:
             return {'Error': 'Unable to generate configuration'}
         network_access.configure_firewall(self.defaults.credentials, configuration_set)
-        return {"project": project}
+        message = network + " from " + project
+        return {"Removed": message}
 
 def main():
     """
     main method
     """
+    #logging.basicConfig(level=logging.DEBUG)
     my_defaults = network_access.Defaults()
     my_key = 'S3cr3tK3y'
     global_values = {'defaults': my_defaults,

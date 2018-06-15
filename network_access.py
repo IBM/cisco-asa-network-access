@@ -91,18 +91,15 @@ def fill_config_set(network_object, object_group, clean=False):
     When cleaning a project, network_object should be a list (of network strings).
     """
     object_group = 'object-group network ' + object_group
-    if not clean:
-        network_object = [network_object]
     config_set = [object_group]
-    for net_obj in network_object:
-        network_string = 'network-object ' + net_obj
-        if clean:
-            network_string = 'no ' + network_string
-        config_set.append(network_string)
+    network_string = 'network-object ' + network_object
+    if clean:
+        network_string = 'no ' + network_string
+    config_set.append(network_string)
     logging.debug('Using configuration set: %s', str(config_set))
     return config_set
 
-def create_config_set(configuration, network, project):
+def create_config_set(configuration, network, project, clean=False):
     """
     Given a network (string) and project (string),
     create a configuration set (list of commands to ASA).
@@ -118,35 +115,11 @@ def create_config_set(configuration, network, project):
             net_address = 'host ' + str(net_address.network_address)
         else:
             net_address = str(net_address.network_address) + ' ' + str(net_address.netmask)
+        logging.debug('Using network address %s', net_address)
     except ValueError:
         logging.debug('Invalid network %s', net_address)
         return None
-    return fill_config_set(net_address, project_group)
-
-def clean_config_set(configuration, project):
-    """
-    Given a project (string), go through all defined networks and remove
-    them from the object-group. Returns the configuration set to perform
-    this task.
-    """
-    networks_to_clean = []
-    project_group = configuration.return_match_or_none('projects', project)
-    if not project_group:
-        logging.debug('Unable to find project %s for cleanup', project)
-        return None
-    for net in configuration.return_values('networks'):
-        net_address = list(net.values())[0]
-        try:
-            net_address = ipaddress.ip_network(net_address)
-            if int(net_address.prefixlen) == 32:
-                net_address = 'host ' + str(net_address.network_address)
-            else:
-                net_address = str(net_address.network_address) + ' ' + str(net_address.netmask)
-            logging.debug('Adding network %s to cleanup', net_address)
-            networks_to_clean.append(net_address)
-        except ValueError:
-            logging.debug('Ignoring invalid network %s for cleanup', net_address)
-    return fill_config_set(networks_to_clean, project_group, True)
+    return fill_config_set(net_address, project_group, clean)
 
 def configure_firewall(credentials, config_set=None, save=False):
     """
@@ -167,22 +140,14 @@ def main():
     #logging.basicConfig(level=logging.DEBUG)
     parser = argparse.ArgumentParser()
     parser.add_argument("project", help="The project to modify")
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("-n", "--network", type=str,
-                       help="The network to add to the specified project")
-    group.add_argument("-c", "--clean", help="Remove all defined networks from specified project",
-                       action="store_true", default=False)
+    parser.add_argument("network", help="The network to add/remove from the project")
+    parser.add_argument("-c", "--clean", help="Remove the specified network from the project",
+                        action="store_true", default=False)
     parser.add_argument("-s", "--save", help="Save the configuration after making the change",
                         action="store_true", default=False)
     args = parser.parse_args()
     my_defaults = Defaults()
-    if args.clean:
-        configuration_set = clean_config_set(my_defaults, args.project)
-    else:
-        if not args.network:
-            print('Need to provide a network to add to project')
-            exit(-1)
-        configuration_set = create_config_set(my_defaults, args.network, args.project)
+    configuration_set = create_config_set(my_defaults, args.network, args.project, args.clean)
     if not configuration_set:
         print("Unable to generate valid configuration. Run in debug mode to troubleshoot.")
         exit(-1)
