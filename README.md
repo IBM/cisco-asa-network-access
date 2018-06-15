@@ -42,9 +42,9 @@ Examples:
 $ curl -k https://rest-server.example.com:8088
 {"usage": "URL to add a network: /add/<project_name> and include a network: <network_name> data in PUT request. URL to clean network: /clean/<project_name> and no data needed in the PUT request."}
 $ curl -k -X PUT https://rest-server.example.com:8088/add/demo-1 -d "network=net1" -d "key=S3cr3tK3y"
-{"Added": "sos_net1 to demo-1"}
+{"Added": "net1 to demo-1"}
 $ curl -k -X PUT https://rest-server.example.com:8088/clean/demo-1 -d "network=net1" -d "key=S3cr3tK3y"
-{"Removed": "sos_net1 from demo-1"}
+{"Removed": "net1 from demo-1"}
 ```
 
 ## FAQ
