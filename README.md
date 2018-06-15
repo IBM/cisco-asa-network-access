@@ -40,7 +40,7 @@ Examples:
 
 ```
 $ curl -k https://rest-server.example.com:8088
-{"usage": "URL to add a network: /add/<project_name> and include a network: <network_name> data in PUT request. URL to clean network: /clean/<project_name> and no data needed in the PUT request."}
+{"usage": "Include network: <network_name> and key: <preshared_key> in the data portion of the PUT request to add or clean. URL to add a network: /add/<project_name> URL to clean network: /clean/<project_name>"}
 $ curl -k -X PUT https://rest-server.example.com:8088/add/demo-1 -d "network=net1" -d "key=S3cr3tK3y"
 {"Added": "net1 to demo-1"}
 $ curl -k -X PUT https://rest-server.example.com:8088/clean/demo-1 -d "network=net1" -d "key=S3cr3tK3y"

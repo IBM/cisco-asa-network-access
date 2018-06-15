@@ -28,10 +28,10 @@ class HelpScreen(Resource):
         """
         Provide useful help here
         """
-        help_msg = 'URL to add a network: /add/<project_name>'
-        help_msg += ' and include a network: <network_name> data in PUT request.'
-        help_msg += ' URL to clean network: /clean/<project_name> and no data'
-        help_msg += ' needed in the PUT request.'
+        help_msg = 'Include network: <network_name> and key: <preshared_key> in'
+        help_msg += ' the data portion of the PUT request to add or clean.'
+        help_msg += ' URL to add a network: /add/<project_name>'
+        help_msg += ' URL to clean network: /clean/<project_name>'
         return {'usage': help_msg}
 
 class AddNetwork(Resource):
