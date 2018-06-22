@@ -1,6 +1,6 @@
 # asa-network-access
 
-Uses [Netmiko](https://github.com/ktbyers/netmiko) to configure one of a set of predefined object-group network instances, adding or removing one of a set of predefined networks.
+Uses [Netmiko](https://github.com/ktbyers/netmiko) to configure one of a set of predefined object-group network instances, adding or removing a network-object so long as it falls within a predefined set of networks.
 
 There is a command-line tool as well as a simple web-based API (using Flask-RESTful).
 

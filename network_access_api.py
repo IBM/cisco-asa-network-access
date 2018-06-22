@@ -83,6 +83,7 @@ def main():
     main method
     """
     #logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     my_defaults = network_access.Defaults()
     my_key = 'S3cr3tK3y'
     global_values = {'defaults': my_defaults,

@@ -5,9 +5,9 @@ projects:
   - demo-zone: object-group-network-name1
   - frontend: object-group-network-name2
   - monitors: object-group-network-name3
-# This is required, to know what networks to remove from
-# the object-group when a cleanup is requested
+# This is required, to restrict what networks are allowed
+# to be added/removed from the specified object-groups.
 networks:
-  - remote_net1: '10.10.10.0/24'
-  - remote_net2: '192.168.11.128/25'
-  - client_access: '172.17.18.19'
+  - '10.10.10.0/24'
+  - '192.168.11.128/25'
+  - '172.17.18.32/27'
