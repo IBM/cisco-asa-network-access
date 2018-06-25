@@ -39,12 +39,19 @@ Minimum security measures are applied; a pre-shared key is required. For product
 Examples:
 
 ```
-$ curl -k https://rest-server.example.com:8088
+$ curl -k https://rest-server.example.com:8088/
 {"usage": "Include network: <network_name> and key: <preshared_key> in the data portion of the PUT request to add or clean. URL to add a network: /add/<project_name> URL to clean network: /clean/<project_name>"}
-$ curl -k -X PUT https://rest-server.example.com:8088/add/demo-1 -d "network=net1" -d "key=S3cr3tK3y"
-{"Added": "net1 to demo-1"}
-$ curl -k -X PUT https://rest-server.example.com:8088/clean/demo-1 -d "network=net1" -d "key=S3cr3tK3y"
-{"Removed": "net1 from demo-1"}
+$ curl -k -X PUT https://rest-server.example.com:8088/add/demo-project1 -d "network=10.22.11.128/27" -d "key=sh4redk3y"
+{"Added": "10.22.11.128/27 to demo-project1"}
+$ curl -k -X PUT https://rest-server.example.com:8088/clean/demo-project1 -d "network=10.22.11.128/27" -d "key=sh4redk3y"
+{"Removed": "10.22.11.128/27 from demo-project1"}
+
+# Attempting to add network outside of allowed range
+$ curl -k -X PUT https://rest-server.example.com:8088/add/demo-project1 -d "network=192.168.54.0/24" -d "key=sh4redk3y"
+{"Error": "Unable to generate configuration"}
+# Missing pre-shared key
+$ curl -k -X PUT https://rest-server.example.com:8088/add/demo-project1 -d "network=10.22.11.128/27"
+{"Error": "Missing required data payload"}
 ```
 
 ## FAQ

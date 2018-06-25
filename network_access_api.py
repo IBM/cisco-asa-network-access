@@ -47,6 +47,8 @@ class AddNetwork(Resource):
         """
         Add network here
         """
+        if 'key' not in request.form or 'network' not in request.form:
+            return {'Error': 'Missing required data payload'}
         pre_shared_key = request.form['key']
         network = request.form['network']
         configuration_set = network_access.create_config_set(self.defaults, network, project)
@@ -69,6 +71,8 @@ class CleanProject(Resource):
         """
         Clean network here
         """
+        if 'key' not in request.form or 'network' not in request.form:
+            return {'Error': 'Missing required data payload'}
         pre_shared_key = request.form['key']
         network = request.form['network']
         configuration_set = network_access.create_config_set(self.defaults, network, project, True)
